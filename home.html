@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文京区 - コミュニティマップ</title>
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #F5F7F4;
+            color: #2C3E50;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        #map {
+            height: 100vh;
+            width: 100vw;
+            z-index: 1;
+        }
+
+        #chatCard {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 380px;
+            max-height: 600px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #F8FAFC, #EDF2F7);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            padding: 16px 20px;
+            border-radius: 24px 24px 0 0;
+        }
+
+        .message-container {
+            padding: 16px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .message-bubble {
+            margin-bottom: 1rem;
+            max-width: 80%;
+            border-radius: 18px;
+            padding: 12px 16px;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .message-bubble.mine {
+            margin-left: auto;
+            background: #4299E1;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-bubble.others {
+            margin-right: auto;
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-bubble:hover {
+            transform: translateY(-1px);
+        }
+
+        .location-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            background: rgba(66, 153, 225, 0.1);
+            color: #4299E1;
+            border-radius: 16px;
+            font-size: 12px;
+            margin-right: 8px;
+        }
+
+        .mood-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            margin-top: 4px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .mood-happy {
+            background: rgba(104, 211, 145, 0.1);
+            color: #68D391;
+        }
+
+        .mood-excited {
+            background: rgba(246, 173, 85, 0.1);
+            color: #F6AD55;
+        }
+
+        .mood-peaceful {
+            background: rgba(144, 205, 244, 0.1);
+            color: #90CDF4;
+        }
+
+        .activity-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            background: rgba(237, 242, 247, 0.8);
+            color: #718096;
+            border-radius: 16px;
+            font-size: 12px;
+            margin: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .activity-tag:hover {
+            background: rgba(237, 242, 247, 1);
+            transform: translateY(-1px);
+        }
+
+        .custom-marker-icon {
+            background: white;
+            border: 2px solid #4299E1;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Scrollbar styling */
+        .message-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .message-container::-webkit-scrollbar-track {
+            background: rgba(237, 242, 247, 0.5);
+        }
+
+        .message-container::-webkit-scrollbar-thumb {
+            background: rgba(203, 213, 224, 0.8);
+            border-radius: 3px;
+        }
+
+        .message-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(203, 213, 224, 1);
+        }
+
+        .input-container {
+            padding: 16px;
+            background: rgba(247, 250, 252, 0.8);
+            border-top: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 20px;
+            border: 1px solid #E2E8F0;
+            background: white;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #4299E1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Map Container -->
+    <div id="map"></div>
+
+    <!-- Chat Card -->
+    <div id="chatCard" class="hidden">
+        <div class="card-header">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 id="locationTitle" class="text-lg font-semibold text-gray-800"></h3>
+                    <p id="locationSubtitle" class="text-sm text-gray-600"></p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span id="locationDistance" class="text-sm text-blue-600"></span>
+                    <button onclick="closeChat()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="messageContainer" class="message-container"></div>
+        <div class="input-container">
+            <input type="text" class="input-field" placeholder="メッセージを入力...">
+        </div>
+    </div>
+
+    <script>
+        // Initialize map
+        const map = L.map('map').setView([35.7157, 139.7487], 15);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        // Custom icons
+        const icons = {
+            park: '<i class="fas fa-tree text-green-500"></i>',
+            venue: '<i class="fas fa-landmark text-blue-500"></i>',
+            shop: '<i class="fas fa-store text-orange-500"></i>',
+            building: '<i class="fas fa-building text-purple-500"></i>'
+        };
+
+        // Mock user location
+        const userLocation = {
+            lat: 35.7157,
+            lng: 139.7487
+        };
+
+        // Location data
+        const locations = [
+            {
+                id: '1',
+                position: [35.7157, 139.7487],
+                title: '小石川後楽園',
+                subtitle: '都立庭園',
+                type: 'park',
+                mood: 'peaceful',
+                messages: [
+                    {
+                        user: '佐藤',
+                        text: '今日の桜、満開できれいですね！心が癒されます。みなさんも、ぜひ見に来てください！',
+                        timestamp: '10分前',
+                        image: 'https://images.unsplash.com/photo-1522383225653-ed111181a951?w=800&auto=format&fit=crop&q=60',
+                        reactions: [
+                            { emoji: '👍', count: 5 },
+                            { emoji: '🌸', count: 8 }
+                        ],
+                        mood: 'peaceful',
+                        activities: ['写真撮影', '散歩']
+                    },
+                    {
+                        user: '田中',
+                        text: 'そうですね！池の近くで三毛猫を見かけました。とても人懐っこくて、癒されました。いつもこの辺りにいるのかな？',
+                        timestamp: '5分前',
+                        image: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800&auto=format&fit=crop&q=60',
+                        reactions: [
+                            { emoji: '😺', count: 12 },
+                            { emoji: '❤️', count: 3 }
+                        ],
+                        mood: 'happy',
+                        activities: ['動物観察', '散歩']
+                    }
+                ],
+                hasUpdate: true
+            },
+            {
+                id: '2',
+                position: [35.7177, 139.7457],
+                title: '東京ドーム',
+                subtitle: '野球場・イベント会場',
+                type: 'venue',
+                messages: [
+                    {
+                        user: '東京ドーム公式',
+                        text: '本日のナイトゲーム、予定通り開催します！場内ショップでは新商品も入荷しています。\n\n■試合開始：18:00\n■開場：16:00\n■本日のイベント：\n・選手サイン会（15:00-15:30）\n・ファンクラブ会員限定抽選会',
+                        timestamp: '30分前',
+                        image: 'https://images.unsplash.com/photo-1557409518-691ebcd96038?w=800&auto=format&fit=crop&q=60',
+                        reactions: [
+                            { emoji: '⚾', count: 24 },
+                            { emoji: '👍', count: 18 }
+                        ]
+                    }
+                ],
+                hasUpdate: true
+            },
+            {
+                id: '3',
+                position: [35.7134, 139.7446],
+                title: 'パン屋 こむぎ',
+                subtitle: 'ベーカリー',
+                type: 'shop',
+                messages: [
+                    {
+                        user: 'パン屋 こむぎ',
+                        text: '本日の塩パン、できたてです！14時からは全品20%オフになります。\n\n■本日のおすすめ：\n・塩パン（180円）\n・クロワッサン（220円）\n・メロンパン（200円）',
+                        timestamp: '15分前',
+                        image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&auto=format&fit=crop&q=60',
+                        reactions: [
+                            { emoji: '🥖', count: 15 },
+                            { emoji: '😋', count: 9 }
+                        ]
+                    }
+                ],
+                hasUpdate: true
+            },
+            {
+                id: '4',
+                position: [35.7168, 139.7425],
+                title: '文京シビックセンター',
+                subtitle: '展望台',
+                type: 'building',
+                messages: [
+                    {
+                        user: '山本',
+                        text: '今日は天気がよくて、スカイツリーまでくっきり見えます！富士山も見えるかも？',
+                        timestamp: '20分前',
+                        image: 'https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=800&auto=format&fit=crop&q=60',
+                        reactions: [
+                            { emoji: '🗼', count: 7 },
+                            { emoji: '🏔️', count: 4 }
+                        ]
+                    }
+                ],
+                hasUpdate: false
+            }
+        ];
+
+        let currentLocation = null;
+        const markers = new Map();
+
+        // Create markers
+        locations.forEach(location => {
+            const markerHtml = `
+                <div class="custom-marker-icon">
+                    ${icons[location.type]}
+                </div>
+            `;
+
+            const icon = L.divIcon({
+                html: markerHtml,
+                className: 'custom-div-icon',
+                iconSize: [36, 36],
+                iconAnchor: [18, 18]
+            });
+
+            const marker = L.marker(location.position, { icon }).addTo(map);
+            markers.set(location.id, marker);
+            marker.on('click', () => showChat(location));
+        });
+
+        function showChat(location) {
+            currentLocation = location;
+            const card = document.getElementById('chatCard');
+            
+            document.getElementById('locationTitle').textContent = location.title;
+            document.getElementById('locationSubtitle').textContent = location.subtitle;
+            
+            const distance = calculateDistance(
+                userLocation.lat,
+                userLocation.lng,
+                location.position[0],
+                location.position[1]
+            );
+            document.getElementById('locationDistance').textContent = formatDistance(distance);
+            
+            const container = document.getElementById('messageContainer');
+            container.innerHTML = location.messages.map(msg => `
+                <div class="message-bubble ${msg.user === 'あなた' ? 'mine' : 'others'} shadow-sm">
+                    <div class="flex justify-between items-start gap-2">
+                        <div>
+                            <span class="font-medium text-sm ${msg.user === 'あなた' ? 'text-white' : 'text-gray-900'}">${msg.user}</span>
+                            ${msg.mood ? `
+                                <div class="mood-indicator ${getMoodClass(msg.mood)}">
+                                    <i class="fas ${getMoodIcon(msg.mood)} mr-1"></i>
+                                    <span>${msg.mood}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <span class="text-xs ${msg.user === 'あなた' ? 'text-white/70' : 'text-gray-500'}">${msg.timestamp}</span>
+                    </div>
+                    <p class="text-sm mt-2 ${msg.user === 'あなた' ? 'text-white' : 'text-gray-700'}">${msg.text}</p>
+                    ${msg.image ? `
+                        <img src="${msg.image}" alt="投稿画像" class="mt-3 rounded-lg w-full shadow-sm">
+                    ` : ''}
+                    ${msg.activities ? `
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            ${msg.activities.map(activity => `
+                                <span class="activity-tag">
+                                    #${activity}
+                                </span>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                    <div class="flex items-center justify-between mt-3">
+                        <div class="flex items-center gap-2">
+                            ${msg.reactions ? `
+                                <div class="flex items-center gap-1">
+                                    ${msg.reactions.map(reaction => `
+                                        <button class="text-sm ${msg.user === 'あなた' ? 'text-white/70' : 'text-gray-500'} hover:scale-110 transition-transform">
+                                            ${reaction.emoji} ${reaction.count}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                        <button class="text-xs ${msg.user === 'あなた' ? 'text-white/70' : 'text-gray-500'} hover:text-gray-700 transition-colors">
+                            <i class="far fa-smile"></i> 反応する
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            container.scrollTop = container.scrollHeight;
+            card.classList.remove('hidden');
+
+            if (location.hasUpdate) {
+                location.hasUpdate = false;
+                updateMarker(location);
+            }
+        }
+
+        function getMoodClass(mood) {
+            switch(mood) {
+                case 'happy': return 'mood-happy';
+                case 'excited': return 'mood-excited';
+                case 'peaceful': return 'mood-peaceful';
+                default: return '';
+            }
+        }
+
+        function getMoodIcon(mood) {
+            switch(mood) {
+                case 'happy': return 'fa-smile';
+                case 'excited': return 'fa-star';
+                case 'peaceful': return 'fa-heart';
+                default: return 'fa-smile';
+            }
+        }
+
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371e3;
+            const φ1 = lat1 * Math.PI/180;
+            const φ2 = lat2 * Math.PI/180;
+            const Δφ = (lat2-lat1) * Math.PI/180;
+            const Δλ = (lon2-lon1) * Math.PI/180;
+
+            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                    Math.cos(φ1) * Math.cos(φ2) *
+                    Math.sin(Δλ/2) * Math.sin(Δλ/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+            return R * c;
+        }
+
+        function formatDistance(meters) {
+            if (meters < 1000) {
+                return `${Math.round(meters)}m`;
+            }
+            return `${(meters/1000).toFixed(1)}km`;
+        }
+
+        function updateMarker(location) {
+            const marker = markers.get(location.id);
+            if (marker) {
+                const icon = marker.getIcon();
+                marker.setIcon(icon);
+            }
+        }
+
+        // Add close chat function
+        function closeChat() {
+            document.getElementById('chatCard').classList.add('hidden');
+        }
+    </script>
+</body>
+</html> 

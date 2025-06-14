@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>通知 - 文京区ソーシャルマップ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation Bar -->
+    <div class="bg-white shadow-sm">
+        <div class="max-w-screen-xl mx-auto px-4 py-3">
+            <h1 class="text-xl font-semibold text-center">通知</h1>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="max-w-screen-xl mx-auto px-4 py-6">
+        <!-- Today's Notifications -->
+        <div class="mb-8">
+            <h2 class="text-sm font-medium text-gray-500 mb-4">今日</h2>
+            <div class="space-y-4">
+                <!-- Notification Item 1 -->
+                <div class="bg-white p-4 rounded-2xl shadow-sm flex items-start space-x-4">
+                    <div class="flex-shrink-0">
+                        <img src="https://images.unsplash.com/photo-1557409518-691ebcd96038?w=100&auto=format&fit=crop&q=60" 
+                             alt="東京ドーム" 
+                             class="w-12 h-12 rounded-full object-cover">
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm">
+                            <span class="font-semibold">東京ドーム</span>が新しい投稿を追加しました：
+                            「本日の試合は予定通り開催します！」
+                        </p>
+                        <span class="text-xs text-gray-500">2時間前</span>
+                    </div>
+                    <div class="flex-shrink-0 w-2 h-2 rounded-full bg-blue-500"></div>
+                </div>
+
+                <!-- Notification Item 2 -->
+                <div class="bg-white p-4 rounded-2xl shadow-sm flex items-start space-x-4">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center">
+                            <i class="fas fa-heart text-pink-500"></i>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm">
+                            <span class="font-semibold">田中さん</span>があなたの投稿にいいねしました
+                        </p>
+                        <span class="text-xs text-gray-500">3時間前</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Yesterday's Notifications -->
+        <div>
+            <h2 class="text-sm font-medium text-gray-500 mb-4">昨日</h2>
+            <div class="space-y-4">
+                <!-- Notification Item 3 -->
+                <div class="bg-white p-4 rounded-2xl shadow-sm flex items-start space-x-4">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                            <i class="fas fa-comment text-blue-500"></i>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm">
+                            <span class="font-semibold">佐藤さん</span>があなたの投稿にコメントしました：
+                            「素晴らしい情報をありがとうございます！」
+                        </p>
+                        <span class="text-xs text-gray-500">昨日 15:30</span>
+                    </div>
+                </div>
+
+                <!-- Notification Item 4 -->
+                <div class="bg-white p-4 rounded-2xl shadow-sm flex items-start space-x-4">
+                    <div class="flex-shrink-0">
+                        <img src="https://images.unsplash.com/photo-1617904472808-46e90d9dc5e3?w=100&auto=format&fit=crop&q=60" 
+                             alt="小石川後楽園" 
+                             class="w-12 h-12 rounded-full object-cover">
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm">
+                            <span class="font-semibold">小石川後楽園</span>が新しいイベントを追加しました：
+                            「夜桜ライトアップ」
+                        </p>
+                        <span class="text-xs text-gray-500">昨日 12:45</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>発見 - 文京区ソーシャルマップ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation Bar -->
+    <div class="bg-white shadow-sm">
+        <div class="max-w-screen-xl mx-auto px-4 py-3">
+            <h1 class="text-xl font-semibold text-center">近くの出来事</h1>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="max-w-screen-xl mx-auto px-4 py-6">
+        <!-- Distance Filter -->
+        <div class="mb-6">
+            <div class="flex items-center justify-between">
+                <h2 class="text-sm font-medium text-gray-500">表示範囲</h2>
+                <select id="distanceFilter" class="text-sm rounded-full px-3 py-1 border border-gray-200">
+                    <option value="500">500m以内</option>
+                    <option value="1000" selected>1km以内</option>
+                    <option value="2000">2km以内</option>
+                </select>
+            </div>
+            <div class="mt-2 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                <div class="h-full bg-blue-500 rounded-full" style="width: 50%"></div>
+            </div>
+        </div>
+
+        <!-- Event List -->
+        <div id="eventList" class="space-y-4">
+            <!-- Events will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <script>
+        // Current location (文京区役所付近)
+        const currentLocation = {
+            lat: 35.7080,
+            lng: 139.7520
+        };
+
+        // Event data with coordinates
+        const events = [
+            {
+                id: 1,
+                title: '小石川後楽園',
+                type: '桜の開花状況',
+                description: '桜が満開です！今週末は夜桜ライトアップを実施します。',
+                image: 'https://images.unsplash.com/photo-1617904472808-46e90d9dc5e3?w=800&auto=format&fit=crop&q=60',
+                location: {
+                    lat: 35.7157,
+                    lng: 139.7487
+                },
+                address: '文京区後楽1-6-6',
+                timestamp: '10分前',
+                engagement: {
+                    likes: 452,
+                    comments: 38
+                }
+            },
+            {
+                id: 2,
+                title: '東京ドーム',
+                type: 'イベント情報',
+                description: '本日の試合は予定通り開催！事前予約でドリンク1杯サービス実施中。',
+                image: 'https://images.unsplash.com/photo-1557409518-691ebcd96038?w=800&auto=format&fit=crop&q=60',
+                location: {
+                    lat: 35.7177,
+                    lng: 139.7457
+                },
+                address: '文京区後楽1-3-61',
+                timestamp: '30分前',
+                engagement: {
+                    likes: 286,
+                    comments: 24
+                }
+            },
+            {
+                id: 3,
+                title: 'パン屋 こむぎ',
+                type: '新商品情報',
+                description: '本日の塩パン、できたてです！14時からは全品20%オフになります。',
+                image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&auto=format&fit=crop&q=60',
+                location: {
+                    lat: 35.7134,
+                    lng: 139.7446
+                },
+                address: '文京区後楽2-3-15',
+                timestamp: '1時間前',
+                engagement: {
+                    likes: 156,
+                    comments: 12
+                }
+            }
+        ];
+
+        // Calculate distance between two points
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Radius of the earth in km
+            const dLat = deg2rad(lat2 - lat1);
+            const dLon = deg2rad(lon2 - lon1);
+            const a = 
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            const d = R * c; // Distance in km
+            return d * 1000; // Convert to meters
+        }
+
+        function deg2rad(deg) {
+            return deg * (Math.PI/180);
+        }
+
+        // Format distance
+        function formatDistance(meters) {
+            if (meters < 1000) {
+                return `${Math.round(meters)}m`;
+            }
+            return `${(meters/1000).toFixed(1)}km`;
+        }
+
+        // Update event list
+        function updateEventList() {
+            const maxDistance = parseInt(document.getElementById('distanceFilter').value);
+            
+            // Sort events by distance
+            const sortedEvents = events
+                .map(event => ({
+                    ...event,
+                    distance: calculateDistance(
+                        currentLocation.lat,
+                        currentLocation.lng,
+                        event.location.lat,
+                        event.location.lng
+                    )
+                }))
+                .filter(event => event.distance <= maxDistance)
+                .sort((a, b) => a.distance - b.distance);
+
+            // Update DOM
+            const container = document.getElementById('eventList');
+            container.innerHTML = sortedEvents.map(event => `
+                <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                    <div class="relative">
+                        <img src="${event.image}" 
+                             alt="${event.title}" 
+                             class="w-full h-48 object-cover">
+                        <div class="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-xs font-medium">
+                            ${formatDistance(event.distance)}
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-semibold text-lg">${event.title}</h3>
+                                <p class="text-sm text-gray-500">${event.address}</p>
+                            </div>
+                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                                ${event.type}
+                            </span>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-600">
+                            ${event.description}
+                        </p>
+                        <div class="mt-4 flex items-center justify-between">
+                            <div class="flex space-x-4">
+                                <button class="text-gray-500 flex items-center space-x-1">
+                                    <i class="far fa-heart"></i>
+                                    <span class="text-sm">${event.engagement.likes}</span>
+                                </button>
+                                <button class="text-gray-500 flex items-center space-x-1">
+                                    <i class="far fa-comment"></i>
+                                    <span class="text-sm">${event.engagement.comments}</span>
+                                </button>
+                            </div>
+                            <span class="text-sm text-gray-500">${event.timestamp}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Initialize
+        document.getElementById('distanceFilter').addEventListener('change', updateEventList);
+        updateEventList();
+    </script>
+</body>
+</html> 

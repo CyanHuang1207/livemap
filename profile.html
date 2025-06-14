@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プロフィール - 文京区ソーシャルマップ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation Bar -->
+    <div class="bg-white shadow-sm">
+        <div class="max-w-screen-xl mx-auto px-4 py-3 flex justify-between items-center">
+            <h1 class="text-xl font-semibold">プロフィール</h1>
+            <button class="text-gray-400">
+                <i class="fas fa-cog text-xl"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="max-w-screen-xl mx-auto px-4 py-6">
+        <!-- Profile Header -->
+        <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+            <div class="flex items-center space-x-4">
+                <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop&q=60" 
+                     alt="プロフィール画像" 
+                     class="w-20 h-20 rounded-full object-cover">
+                <div class="flex-1">
+                    <h2 class="text-xl font-semibold">山田太郎</h2>
+                    <p class="text-gray-500">@yamada_taro</p>
+                    <p class="text-sm text-gray-600 mt-1">文京区在住 / カフェ巡り好き</p>
+                </div>
+            </div>
+            <div class="flex justify-around mt-6 pt-6 border-t border-gray-100">
+                <div class="text-center">
+                    <span class="block text-2xl font-semibold text-gray-900">42</span>
+                    <span class="text-sm text-gray-500">投稿</span>
+                </div>
+                <div class="text-center">
+                    <span class="block text-2xl font-semibold text-gray-900">128</span>
+                    <span class="text-sm text-gray-500">フォロワー</span>
+                </div>
+                <div class="text-center">
+                    <span class="block text-2xl font-semibold text-gray-900">95</span>
+                    <span class="text-sm text-gray-500">フォロー中</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Tabs -->
+        <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div class="flex border-b border-gray-200">
+                <button class="flex-1 py-4 text-center text-sm font-medium text-blue-500 border-b-2 border-blue-500">
+                    投稿
+                </button>
+                <button class="flex-1 py-4 text-center text-sm font-medium text-gray-500">
+                    いいね
+                </button>
+                <button class="flex-1 py-4 text-center text-sm font-medium text-gray-500">
+                    コメント
+                </button>
+            </div>
+
+            <!-- Posts Grid -->
+            <div class="grid grid-cols-2 gap-1 p-1">
+                <!-- Post 1 -->
+                <div class="aspect-square relative">
+                    <img src="https://images.unsplash.com/photo-1617904472808-46e90d9dc5e3?auto=format&fit=crop&q=60" 
+                         alt="小石川後楽園の写真" 
+                         class="w-full h-full object-cover">
+                    <div class="absolute bottom-2 left-2 flex items-center space-x-1">
+                        <i class="fas fa-heart text-white text-sm"></i>
+                        <span class="text-white text-sm">24</span>
+                    </div>
+                </div>
+
+                <!-- Post 2 -->
+                <div class="aspect-square relative">
+                    <img src="https://images.unsplash.com/photo-1557409518-691ebcd96038?auto=format&fit=crop&q=60" 
+                         alt="東京ドームの写真" 
+                         class="w-full h-full object-cover">
+                    <div class="absolute bottom-2 left-2 flex items-center space-x-1">
+                        <i class="fas fa-heart text-white text-sm"></i>
+                        <span class="text-white text-sm">18</span>
+                    </div>
+                </div>
+
+                <!-- Post 3 -->
+                <div class="aspect-square relative">
+                    <img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&q=60" 
+                         alt="カフェの写真" 
+                         class="w-full h-full object-cover">
+                    <div class="absolute bottom-2 left-2 flex items-center space-x-1">
+                        <i class="fas fa-heart text-white text-sm"></i>
+                        <span class="text-white text-sm">32</span>
+                    </div>
+                </div>
+
+                <!-- Post 4 -->
+                <div class="aspect-square relative">
+                    <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&q=60" 
+                         alt="公園の写真" 
+                         class="w-full h-full object-cover">
+                    <div class="absolute bottom-2 left-2 flex items-center space-x-1">
+                        <i class="fas fa-heart text-white text-sm"></i>
+                        <span class="text-white text-sm">15</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
